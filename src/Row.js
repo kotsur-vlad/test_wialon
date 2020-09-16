@@ -2,7 +2,7 @@ import React from "react"
 
 export const Row = React.memo((props) => {
 	return (
-		<div className="History_row">
+		<div className="history_row">
 			<div>
 				{props.lat}
 			</div>

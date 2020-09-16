@@ -31,7 +31,7 @@ function App () {
 		mapRef.current = map
 	}, [])
 
-
+	//State
 	const [coordinates, setCoordinates] = useState({
 		lat: "",
 		lng: "",
@@ -39,7 +39,7 @@ function App () {
 	const [activeResult, setActiveResult] = useState({})
 	const [results, setResults] = useState([])
 
-
+	//Receiving coordinates from click
 	const getCoordinates = useCallback((e) => {
 		setCoordinates({
 			lat: (parseInt(e.latLng.lat() * 1000000)) / 1000000,
@@ -48,6 +48,7 @@ function App () {
 		setActiveResult(null)
 	}, [])
 
+	//Receiving geocoding request
 	const getGeocodingAPI = async (location) => {
 		try {
 			const data = await getGeocode(location)
@@ -57,6 +58,7 @@ function App () {
 		}
 	}
 
+	//Display result after geocoding
 	const onGeocodingButtonClick = useCallback(() => {
 		setActiveResult(null)
 		getGeocodingAPI({location: coordinates})
@@ -74,35 +76,9 @@ function App () {
 			])
 			setActiveResult(activeResult)
 		})
-
-		// if (results.length === 0) {
-		// 	const activeResult = {
-		// 		lat: location.location.lat,
-		// 		lng: location.location.lng,
-		// 		address: data[0].formatted_address,
-		// 		distance: 0,
-		// 	}
-		// 	setResults((current) => [
-		// 		...current,
-		// 		activeResult,
-		// 	])
-		// 	setActiveResult(activeResult)
-		// } else {
-		// 	const activeResult = {
-		// 		lat: location.location.lat,
-		// 		lng: location.location.lng,
-		// 		address: data[0].formatted_address,
-		// 		distance: "",
-		// 	}
-		// 	setResults((current) => [
-		// 		...current,
-		// 		activeResult,
-		// 	])
-		// 	setActiveResult(activeResult)
-		// }
 	}, [coordinates])
 
-
+	//Receiving distance between last 2 points
 	const getDistance = useCallback((destination, distance) => {
 		setResults((current) => current.map(c => {
 				if (c.address === destination) {
@@ -115,6 +91,7 @@ function App () {
 		)
 	}, [])
 
+	//Receiving options for distance request
 	const getOptions = useCallback(() => {
 		if (results.length > 1) {
 			return {
@@ -131,32 +108,33 @@ function App () {
 		} else return null
 	}, [results])
 
-	// const getCallback = useCallback(() => {
-	//
-	// }, [])
-
 	const renderMap = () => {
 		return (
 			<div className="App">
-				<div className="History">
+
+				<div className="history">
 					<Row lat={"Широта"}
 						 lng={"Долгота"}
 						 address={"Адрес"}
 						 distance={"Расстояние от последней точки"}/>
+
 					{
-						results.map(res => <Row lat={res.lat}
-												lng={res.lng}
-												address={res.address}
-												distance={res.distance}/>)
+						results.map((res, i) => <Row key={i}
+															 lat={res.lat}
+															 lng={res.lng}
+															 address={res.address}
+															 distance={res.distance}/>)
 					}
-					<div className="History_row">
+
+					<div className="total_distance">
 						Общее расстояние: {
 						results.map(r => parseInt(r.distance))
 						.reduce((sum, curr) => sum + curr, 0)
 					} км
 					</div>
 				</div>
-				<div className="Geocode">
+
+				<div className="geocode">
 					<input type="text"
 						   placeholder="широта"
 						   readOnly
@@ -167,17 +145,19 @@ function App () {
 						   readOnly
 						   value={coordinates.lng}
 					/>
-					<button className="Geocode_button"
+					<button className="geocode_button"
 							onClick={onGeocodingButtonClick}>
 						Геокодировать
 					</button>
 				</div>
+
 				<GoogleMap center={center}
 						   mapContainerStyle={mapContainerStyle}
 						   options={options}
 						   zoom={7}
 						   onDblClick={getCoordinates}
 						   onLoad={onMapLoad}>
+
 					<Marker position={coordinates}>
 						{
 							activeResult ? (<InfoWindow onCloseClick={() => setActiveResult(null)}>
@@ -202,7 +182,6 @@ function App () {
 												   }}/>
 						) : null
 					}
-
 				</GoogleMap>
 			</div>
 		)
